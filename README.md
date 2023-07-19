@@ -13,5 +13,8 @@
 <li>Created entities and skillfully mapped them to their respective database tables.</li>
 <li>Implemented user registration and login features, with the help of JWT tokens</li>
 <li>Used Guards for enhanced security</li>
+<li>Used Bycrypt for password encryption</li>
+<li>Used Class provider for validating dto objects.</li>
+<li>Used db transaction maintaining data integrity and consistency.</li>
 
 
