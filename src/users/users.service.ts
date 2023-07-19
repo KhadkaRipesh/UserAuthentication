@@ -47,15 +47,3 @@ export class UsersService {
     );
   }
 }
-
-// async createUser(createUserDto: CreateUserDto) {
-//   return await this.entityManager.transaction(async (transactionalEntityManager) => {
-//     const { username, password } = createUserDto;
-//     const hashedPassword = await this.bcryptService.hashPassword(password);
-//     const user = this.userService.create({
-//       username,
-//       password: hashedPassword,
-//     });
-//     return await transactionalEntityManager.save(user);
-//   });
-// }
