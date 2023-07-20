@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { BycryptService } from './bycrypt.service';
@@ -13,6 +13,9 @@ export class AuthService {
 
   async signIn(username: string, password: string): Promise<any> {
     const user = await this.userService.findUser(username);
+    if(!user){
+      throw new BadRequestException();
+    }
     const toCompare = await this.bycryptService.comparePassword(
       password,
       user?.password,
