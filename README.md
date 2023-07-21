@@ -16,5 +16,6 @@
 <li>Used Bycrypt for password encryption</li>
 <li>Used Class provider for validating dto objects.</li>
 <li>Used db transaction maintaining data integrity and consistency.</li>
+<li>Used otp verification.</li>
 
 
