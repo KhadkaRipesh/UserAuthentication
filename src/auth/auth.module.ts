@@ -16,7 +16,7 @@ import { BycryptService } from './bycrypt.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService,BycryptService],
+  providers: [AuthService, BycryptService],
   exports: [AuthService],
 })
 export class AuthModule {}

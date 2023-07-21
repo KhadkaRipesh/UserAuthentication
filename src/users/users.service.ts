@@ -1,13 +1,10 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { BycryptService } from 'src/auth/bycrypt.service';
+import { MailerService } from '@nestjs-modules/mailer';
 export type Users = any;
 @Injectable()
 export class UsersService {
@@ -16,6 +13,7 @@ export class UsersService {
 
     private datasource: DataSource,
     private bycryptService: BycryptService,
+    private mailerService: MailerService,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
@@ -24,11 +22,22 @@ export class UsersService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const { username, password } = createUserDto;
+      const { username, email, password } = createUserDto;
       const hashedPassword = await this.bycryptService.hashPassword(password);
       const user = new User();
       user.username = username;
+      user.email = email;
       user.password = hashedPassword;
+      user.otp = Math.floor(Math.random() * 10000);
+      const otpEx = 3;
+      const otpExpiry = new Date(Date.now() + otpEx * 60000);
+      user.expiryDate = otpExpiry;
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'Verify the otp',
+        text: `Your otp is ${user.otp}`,
+      });
+
       await queryRunner.manager.save(user);
       // commit transaction
       await queryRunner.commitTransaction();
@@ -47,21 +56,27 @@ export class UsersService {
     return this.repoService.find();
   }
 
-  async findUser(username: string): Promise<Users | undefined> {
-    return this.repoService.findOneBy({ username: username });
+  async findEmail(email: string): Promise<Users | undefined> {
+    return this.repoService.findOneBy({ email: email });
+  }
+
+  async verifyAccount(code: number) {
+    try {
+      const user = await this.repoService.findOneBy({ otp: code });
+      if (!user || user.expiryDate < new Date(Date.now())) {
+        return new HttpException(
+          'Verification code expired or not found',
+          HttpStatus.UNAUTHORIZED,
+        );
+      } else {
+        await this.repoService.update({ otp: user.otp }, { isVerified: true });
+        return true;
+      }
+    } catch (e) {
+      return new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 // async createUser(createUserDto: CreateUserDto) {
 //   const { username, password } = createUserDto;

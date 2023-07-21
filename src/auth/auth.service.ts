@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { BycryptService } from './bycrypt.service';
@@ -11,21 +17,33 @@ export class AuthService {
     private bycryptService: BycryptService,
   ) {}
 
-  async signIn(username: string, password: string): Promise<any> {
-    const user = await this.userService.findUser(username);
-    if(!user){
+  async signIn(email: string, password: string): Promise<any> {
+    const user = await this.userService.findEmail(email);
+    if (!user) {
       throw new BadRequestException();
+    } else {
+      if (user.isVerified) {
+        const toCompare = await this.bycryptService.comparePassword(
+          password,
+          user?.password,
+        );
+        if (!toCompare) {
+          throw new UnauthorizedException();
+        }
+        const tojwt = {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+        };
+        return {
+          token: await this.jwtService.signAsync(tojwt),
+        };
+      } else {
+        return new HttpException(
+          'Please verify your account',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
     }
-    const toCompare = await this.bycryptService.comparePassword(
-      password,
-      user?.password,
-    );
-    if (!toCompare) {
-      throw new UnauthorizedException();
-    }
-    const tojwt = { id: user.id, username: user.username };
-    return {
-      token: await this.jwtService.signAsync(tojwt),
-    };
   }
 }

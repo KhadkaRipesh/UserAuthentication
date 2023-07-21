@@ -2,8 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
-  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,5 +20,9 @@ export class UsersController {
   @Get()
   getUsers() {
     return this.userService.getUsers();
+  }
+  @Get('verify/:code')
+  verifyAccount(@Param('code') code: string) {
+    return this.userService.verifyAccount(+code);
   }
 }

@@ -19,7 +19,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   login(@Body() siginDto: SignInDto): Record<string, any> {
-    return this.authService.signIn(siginDto.username, siginDto.password);
+    return this.authService.signIn(siginDto.email, siginDto.password);
   }
 
   @UseGuards(AuthGuard)
