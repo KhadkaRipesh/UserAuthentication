@@ -5,22 +5,28 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { BycryptService } from 'src/auth/bycrypt.service';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     TypeOrmModule.forFeature([User]),
-    MailerModule.forRoot({
-      transport: {
-        service: 'gmail',
-        secure: false,
-        auth: {
-          user: process.env.GMAIL_USER,
-          pass: process.env.GMAIL_PASSWORD,
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          service: 'gmail',
+          secure: false,
+          auth: {
+            user: configService.get('GMAIL_USER'),
+            pass: configService.get('GMAIL_PASSWORD'),
+          },
         },
-      },
-      defaults: {
-        from: '"No Reply" <solverspro@gmail.com>',
-      },
+        defaults: {
+          from: '"No Reply" <solverspro@gmail.com>',
+        },
+      }),
+      inject: [ConfigService],
     }),
   ],
   controllers: [UsersController],
