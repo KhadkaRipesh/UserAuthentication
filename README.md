@@ -17,5 +17,6 @@
 <li>Used Class provider for validating dto objects.</li>
 <li>Used db transaction maintaining data integrity and consistency.</li>
 <li>Used otp verification.</li>
+<li>Used socket.io for relatime chatting.</li>
 
 
