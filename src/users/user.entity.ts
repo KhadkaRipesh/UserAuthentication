@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { GroupMessage } from 'src/messages/groupMessage.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'users' })
 export class User {
@@ -22,4 +23,10 @@ export class User {
 
   @Column()
   expiryDate: Date;
+
+  @OneToMany(
+    () => GroupMessage,
+    (groupMessage: GroupMessage) => groupMessage.from,
+  )
+  public groupMessages: GroupMessage[];
 }

@@ -56,8 +56,12 @@ export class UsersService {
     return this.repoService.find();
   }
 
-  async findEmail(email: string): Promise<Users | undefined> {
-    return this.repoService.findOneBy({ email: email });
+  async findOne(condition: any): Promise<Users> {
+    return this.repoService.findOne({
+      where: {
+        ...condition,
+      },
+    });
   }
 
   async verifyAccount(code: number) {
