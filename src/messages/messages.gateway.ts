@@ -10,12 +10,15 @@ import { Server, Socket } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
 import { GroupMessageDto } from './dto/group-msg.dto';
 import { OnModuleInit } from '@nestjs/common';
+import { MessagesService } from './messages.service';
+import { PrivateMessageDto } from './dto/private-msg.dto';
 
 @WebSocketGateway()
 export class MessagesGateway implements OnModuleInit {
   constructor(
     private jwtService: JwtService,
     private userService: UsersService,
+    private messageService: MessagesService,
   ) {}
 
   @WebSocketServer()
@@ -46,14 +49,30 @@ export class MessagesGateway implements OnModuleInit {
     @MessageBody() groupMessageDto: GroupMessageDto,
     @ConnectedSocket() client: Socket,
   ) {
-    const from = client.data.username;
+    const from = client.data.id;
     const message = groupMessageDto.message;
     const newData = {
-      from: from,
+      ...groupMessageDto,
+      fromUser: from,
       message: message,
     };
-    console.log(newData);
+    await this.messageService.groupMessage({ ...newData });
+    client.broadcast.emit('group_message', {
+      ...newData,
+    });
+  }
 
-    client.broadcast.emit('group_message', { ...newData });
+  @SubscribeMessage('private_message')
+  async privateMessage(
+    @MessageBody() privateMessageDto: PrivateMessageDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const from = client.data.id;
+    const to = privateMessageDto.to;
+    const newData = { ...privateMessageDto, fromUser: from, toUser: to };
+    client.join(to.toString());
+    client.to(to.toString()).emit('private_message', { ...newData });
+
+    await this.messageService.privateMessage({ ...newData });
   }
 }

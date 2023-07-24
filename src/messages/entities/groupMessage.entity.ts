@@ -7,13 +7,13 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('group_message')
 export class GroupMessage {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (from: User) => from.groupMessages)
-  from: User;
+  @ManyToOne(() => User, (fromUser: User) => fromUser.groupMessages)
+  fromUser: User;
 
   @Column()
   message: string;
