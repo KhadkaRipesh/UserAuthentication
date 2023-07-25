@@ -37,9 +37,11 @@ export class AuthService {
           username: user.username,
           email: user.email,
         };
-        return {
-          token: await this.jwtService.signAsync(tojwt),
-        };
+        // return {
+        //   token: await this.jwtService.signAsync(tojwt),
+        // };
+        const token = await this.jwtService.signAsync(tojwt);
+        return token;
       } else {
         return new HttpException(
           'Please verify your account',

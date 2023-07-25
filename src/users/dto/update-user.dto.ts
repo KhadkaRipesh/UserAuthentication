@@ -6,7 +6,7 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class UpdateUserDto {
   @ApiProperty({
     description: 'The name of the user',
     example: 'Ripesh Khadka',

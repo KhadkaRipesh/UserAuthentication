@@ -70,9 +70,7 @@ export class MessagesGateway implements OnModuleInit {
     const from = client.data.id;
     const to = privateMessageDto.to;
     const newData = { ...privateMessageDto, fromUser: from, toUser: to };
-    client.join(to.toString());
     client.to(to.toString()).emit('private_message', { ...newData });
-
     await this.messageService.privateMessage({ ...newData });
   }
 }

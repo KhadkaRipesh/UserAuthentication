@@ -5,6 +5,7 @@ import { DataSource, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { BycryptService } from 'src/auth/bycrypt.service';
 import { MailerService } from '@nestjs-modules/mailer';
+import { UpdateUserDto } from './dto/update-user.dto';
 export type Users = any;
 @Injectable()
 export class UsersService {
@@ -42,6 +43,7 @@ export class UsersService {
       // commit transaction
       await queryRunner.commitTransaction();
       console.log('Trans committed');
+      return user;
     } catch (e) {
       // rollback transaction
       await queryRunner.rollbackTransaction();
@@ -79,6 +81,14 @@ export class UsersService {
     } catch (e) {
       return new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async updateUser(id: number, updateUserDto: UpdateUserDto) {
+    return this.repoService.update(id, updateUserDto);
+  }
+
+  async deleteUser(id: number) {
+    return this.repoService.delete(id);
   }
 }
 
