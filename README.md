@@ -20,5 +20,4 @@
 <li>Used socket.io for relatime chatting.</li>
 <li>Document Builder configuration.</li>
 <li>Set up endpoints on Swager UI </li>
-
-
+<li>Password reset and password change features added.</li>
