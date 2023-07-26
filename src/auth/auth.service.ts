@@ -19,8 +19,6 @@ export class AuthService {
 
   async signIn(email: string, password: string): Promise<any> {
     const user = await this.userService.findOne({ email: email });
-    console.log(email);
-    console.log(user);
     if (!user) {
       throw new BadRequestException();
     } else {

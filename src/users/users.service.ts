@@ -1,4 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -6,6 +14,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { BycryptService } from 'src/auth/bycrypt.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ForgotRequestDto } from './dto/forgotRequest.dto';
 export type Users = any;
 @Injectable()
 export class UsersService {
@@ -89,6 +100,67 @@ export class UsersService {
 
   async deleteUser(id: number) {
     return this.repoService.delete(id);
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto, users) {
+    try {
+      const user = await this.findOne({ id: users['id'] });
+      if (
+        !(await this.bycryptService.comparePassword(
+          changePasswordDto.oldPassword,
+          user.password,
+        ))
+      ) {
+        return new BadRequestException('Invalid old Password');
+      }
+      if (changePasswordDto.newPassword != changePasswordDto.confirmPassword) {
+        return new BadRequestException('Password do not matched');
+      }
+      const hashedPassword = await this.bycryptService.hashPassword(
+        changePasswordDto.newPassword,
+      );
+      await this.repoService.update(user.id, { password: hashedPassword });
+      return { message: 'Password changed successfully' };
+    } catch (e) {
+      console.log('error');
+      throw new UnauthorizedException();
+    }
+  }
+
+  async resetPasswordReq(forgotRequestDto: ForgotRequestDto) {
+    const { email } = forgotRequestDto;
+    const user = await this.findOne({ email: email });
+    if (user) {
+      const otp = Math.floor(Math.random() * 10000);
+      user.otp = otp;
+      const otpEx = 3;
+      user.expiryDate = new Date(Date.now() + otpEx * 60000);
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'Password Recover OTP',
+        text: `Your Otp for password recovery is ${otp}`,
+      });
+      return await this.repoService.save(user);
+    }
+    throw new NotFoundException('Invalid email or user not exists.');
+  }
+
+  async resetPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const user = await this.findOne({ otp: forgotPasswordDto.otp });
+    console.log(new Date(Date.now()));
+    if (
+      user.otp === forgotPasswordDto.otp &&
+      forgotPasswordDto.newPassword === forgotPasswordDto.confirmPassword &&
+      user.expiryDate > new Date(Date.now())
+    ) {
+      const hashedPassword = await this.bycryptService.hashPassword(
+        forgotPasswordDto.newPassword,
+      );
+      return await this.repoService.update(user.id, {
+        password: hashedPassword,
+      });
+    }
+    throw new BadRequestException('Invalid otp or password doesnot matched');
   }
 }
 

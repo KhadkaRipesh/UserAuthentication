@@ -32,21 +32,12 @@ export class User {
   @Column()
   password: string;
 
-  @ApiProperty({
-    description: 'Is user Verified',
-  })
   @Column({ default: false, nullable: true })
   isVerified: boolean;
 
-  @ApiProperty({
-    description: 'User otp here.',
-  })
   @Column()
   otp: number;
 
-  @ApiProperty({
-    description: 'User otp expiry date.',
-  })
   @Column()
   expiryDate: Date;
 
