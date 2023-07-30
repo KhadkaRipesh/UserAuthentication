@@ -27,5 +27,3 @@
 
 
 <li>Testing webhook</li>
-<li>Initial Test</li>
-<li>Initial Test</li>
