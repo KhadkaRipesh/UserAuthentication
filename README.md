@@ -27,5 +27,5 @@
 
 <h2>This is for webhook testing.</h2>
 <li>Testing webhook</li>
-<li>Test payload webhook</li>
+<li>Test webhook payload.</li>
 <li>Test passed successfully</li>
