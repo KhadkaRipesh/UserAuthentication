@@ -27,5 +27,4 @@
 
 
 <li>Testing webhook</li>
-<li>Init webhook</li>
-<li>Init webhook</li>
+<li>Test payload webhook</li>
