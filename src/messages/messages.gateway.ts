@@ -49,7 +49,12 @@ export class MessagesGateway implements OnModuleInit {
     @MessageBody() groupMessageDto: GroupMessageDto,
     @ConnectedSocket() client: Socket,
   ) {
-    const from = client.data.id;
+    let from;
+    if (!client.data) {
+      from = null;
+    } else {
+      from = client.data.id;
+    }
     const message = groupMessageDto.message;
     const newData = {
       ...groupMessageDto,
@@ -57,9 +62,15 @@ export class MessagesGateway implements OnModuleInit {
       message: message,
     };
     await this.messageService.groupMessage({ ...newData });
-    client.broadcast.emit('group_message', {
-      ...newData,
-    });
+    if (!client.data) {
+      this.server.emit('group_message', {
+        ...newData,
+      });
+    } else {
+      client.broadcast.emit('group_message', {
+        ...newData,
+      });
+    }
   }
 
   @SubscribeMessage('private_message')

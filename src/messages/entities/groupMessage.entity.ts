@@ -13,7 +13,7 @@ export class GroupMessage {
   id: number;
 
   @ManyToOne(() => User, (fromUser: User) => fromUser.groupMessages)
-  fromUser: User;
+  fromUser: User | null;
 
   @Column()
   message: string;
