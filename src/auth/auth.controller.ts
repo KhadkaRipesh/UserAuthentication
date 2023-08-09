@@ -21,6 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { ChangePasswordDto } from '../users/dto/change-password.dto';
 import { UsersService } from 'src/users/users.service';
+import { User } from './user.decorater';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -59,8 +60,8 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: 'Unauthorized or invalid token',
   })
-  getProfile(@Request() req) {
-    return req.user;
+  getProfile(@User() user) {
+    return user;
   }
 
   @UseGuards(AuthGuard)
