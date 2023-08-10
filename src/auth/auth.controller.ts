@@ -60,7 +60,7 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: 'Unauthorized or invalid token',
   })
-  getProfile(@User() user) {
+  getProfile(@User() user: any) {
     return user;
   }
 
@@ -73,7 +73,10 @@ export class AuthController {
   @ApiOkResponse({
     description: 'Password changed Succesfully.',
   })
-  changePassword(@Body() changePasswordDto: ChangePasswordDto, @Request() req) {
+  changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @Request() req: any,
+  ) {
     return this.userService.changePassword(changePasswordDto, req.user);
   }
 }
