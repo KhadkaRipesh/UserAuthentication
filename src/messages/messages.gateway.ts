@@ -12,6 +12,7 @@ import { GroupMessageDto } from './dto/group-msg.dto';
 import { OnModuleInit } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { PrivateMessageDto } from './dto/private-msg.dto';
+import { AsyncApiPub } from 'nestjs-asyncapi';
 
 @WebSocketGateway()
 export class MessagesGateway implements OnModuleInit {
@@ -73,6 +74,15 @@ export class MessagesGateway implements OnModuleInit {
     }
   }
 
+  @AsyncApiPub({
+    channel: 'chatroom_message',
+    summary: 'chatroom message',
+    description: 'please listen to message',
+    message: {
+      name: 'chatroom message',
+      payload: GroupMessageDto,
+    },
+  })
   @SubscribeMessage('private_message')
   async privateMessage(
     @MessageBody() privateMessageDto: PrivateMessageDto,
